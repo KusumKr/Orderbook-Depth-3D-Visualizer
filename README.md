@@ -211,4 +211,4 @@ No environment variables required for basic functionality. All exchange connecti
 
 ---
 
-**Developed by**: [KusumKr]  
+**Developed by**: Kusum Kharayat

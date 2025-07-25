@@ -2,7 +2,7 @@
 
 A real-time 3D visualization of cryptocurrency orderbook data with advanced trading insights, pressure zone analysis, and multi-venue support.
 
-![Project Demo](<img width="1340" height="585" alt="image" src="https://github.com/user-attachments/assets/2e44a8c4-aa1d-454f-a52e-c492d86b563f" />
+![Project Demo](<img width="1340" height="585" alt="Screenshot 2025-07-25 194249" src="https://github.com/user-attachments/assets/0a612f5b-4013-40b0-a767-b5dd18ad9062" />
 )
 
 ## 🚀 Features

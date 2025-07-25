@@ -1,10 +1,9 @@
 # 3D Cryptocurrency Orderbook Visualizer
 
-**GoQuant Technical Assignment Submission**
-
 A real-time 3D visualization of cryptocurrency orderbook data with advanced trading insights, pressure zone analysis, and multi-venue support.
 
-![Project Demo](https://via.placeholder.com/800x400?text=3D+Orderbook+Visualizer)
+![Project Demo](<img width="1340" height="585" alt="image" src="https://github.com/user-attachments/assets/2e44a8c4-aa1d-454f-a52e-c492d86b563f" />
+)
 
 ## 🚀 Features
 
@@ -210,17 +209,6 @@ No environment variables required for basic functionality. All exchange connecti
 - **Load Time**: <3 seconds initial load on broadband
 - **Data Latency**: <200ms from exchange to visualization
 
-## 🤝 Contributing
-
-This project was developed as a technical assignment for GoQuant. For questions or improvements, please refer to the submission guidelines.
-
-## 📄 License
-
-This project is developed for educational and demonstration purposes as part of a technical assessment.
-
 ---
 
-**Developed by**: [Your Name]  
-**Submission Date**: [Current Date]  
-**Assignment**: GoQuant 3D Orderbook Visualizer  
-**Contact**: [Your Email]
+**Developed by**: [KusumKr]  

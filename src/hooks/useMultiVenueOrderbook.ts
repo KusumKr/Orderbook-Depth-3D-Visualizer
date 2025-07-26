@@ -11,6 +11,52 @@ export function useMultiVenueOrderbook(
   const connectionRef = useRef<MultiVenueConnection | null>(null);
   const activeVenuesRef = useRef<Set<string>>(new Set());
 
+  // Generate demo data for venues when not connected
+  const generateDemoData = useCallback((venue: string) => {
+    const basePrice = symbol.toLowerCase().includes('btc') ? 45000 : 
+                     symbol.toLowerCase().includes('eth') ? 2500 : 
+                     symbol.toLowerCase().includes('ada') ? 0.45 : 1.2;
+    
+    // Add slight price variation per venue
+    const venueMultiplier = venue === 'binance' ? 1.0 : 
+                           venue === 'okx' ? 1.001 : 
+                           venue === 'bybit' ? 0.999 : 1.002;
+    
+    const adjustedBasePrice = basePrice * venueMultiplier;
+
+    // Utility to get color for each venue and side
+    const getVenueSideColor = (venue: string, side: "bid" | "ask") => {
+      // if (side === "bid") return "#00ff00"; // Green for bids
+      // if (side === "ask") return "#ff3333"; // Red for asks
+      return VENUE_CONFIGS[venue]?.color || (side === "bid" ? "#00ff00" : "#ff3333");
+    };
+
+    const demoBids: OrderbookLevel[] = [];
+    const demoAsks: OrderbookLevel[] = [];
+
+    for (let i = 0; i < 20; i++) {
+      const priceDiff = adjustedBasePrice * 0.0002 * (i + 1);
+      demoBids.push({
+        price: adjustedBasePrice - priceDiff,
+        quantity: Math.random() * 5 + 0.1,
+        side: "bid",
+        venue: VENUE_CONFIGS[venue]?.name || venue,
+        timestamp: Date.now(),
+        color: getVenueSideColor(venue, "bid")
+      });
+      demoAsks.push({
+        price: adjustedBasePrice + priceDiff,
+        quantity: Math.random() * 5 + 0.1,
+        side: "ask",
+        venue: VENUE_CONFIGS[venue]?.name || venue,
+        timestamp: Date.now(),
+        color: getVenueSideColor(venue, "ask")
+      });
+    }
+
+    return { bids: demoBids, asks: demoAsks };
+  }, [symbol]);
+
   // Initialize multi-venue connection
   useEffect(() => {
     connectionRef.current = new MultiVenueConnection(symbol);
@@ -41,9 +87,23 @@ export function useMultiVenueOrderbook(
       }
     }
 
-    // Connect new venues
+    // Connect new venues and immediately provide demo data as fallback
     for (const venue of currentVenues) {
       if (!previousVenues.has(venue) && VENUE_CONFIGS[venue]) {
+        // Immediately set demo data for this venue
+        const demoData = generateDemoData(venue);
+        setVenueData(prev => ({
+          ...prev,
+          [venue]: {
+            bids: demoData.bids,
+            asks: demoData.asks,
+            isConnected: false,
+            lastUpdate: Date.now(),
+            error: 'Connecting... (demo data)'
+          }
+        }));
+        
+        // Attempt real connection (will be skipped in development mode)
         connectionRef.current.connect(venue, (data) => {
           setVenueData(prev => ({
             ...prev,
@@ -61,44 +121,8 @@ export function useMultiVenueOrderbook(
     }
 
     activeVenuesRef.current = currentVenues;
-  }, [selectedVenues]);
-
-  // Generate demo data for venues when not connected
-  const generateDemoData = useCallback((venue: string) => {
-    const basePrice = symbol.toLowerCase().includes('btc') ? 45000 : 
-                     symbol.toLowerCase().includes('eth') ? 2500 : 
-                     symbol.toLowerCase().includes('ada') ? 0.45 : 1.2;
-    
-    // Add slight price variation per venue
-    const venueMultiplier = venue === 'binance' ? 1.0 : 
-                           venue === 'okx' ? 1.001 : 
-                           venue === 'bybit' ? 0.999 : 1.002;
-    
-    const adjustedBasePrice = basePrice * venueMultiplier;
-    
-    const demoBids: OrderbookLevel[] = [];
-    const demoAsks: OrderbookLevel[] = [];
-
-    for (let i = 0; i < 20; i++) {
-      const priceDiff = adjustedBasePrice * 0.0002 * (i + 1);
-      demoBids.push({
-        price: adjustedBasePrice - priceDiff,
-        quantity: Math.random() * 5 + 0.1,
-        side: "bid",
-        venue: VENUE_CONFIGS[venue]?.name || venue,
-        timestamp: Date.now()
-      });
-      demoAsks.push({
-        price: adjustedBasePrice + priceDiff,
-        quantity: Math.random() * 5 + 0.1,
-        side: "ask",
-        venue: VENUE_CONFIGS[venue]?.name || venue,
-        timestamp: Date.now()
-      });
-    }
-
-    return { bids: demoBids, asks: demoAsks };
-  }, [symbol]);
+    setLastUpdate(Date.now());
+  }, [selectedVenues, generateDemoData]);
 
   // Provide demo data for disconnected venues
   useEffect(() => {
@@ -187,6 +211,5 @@ export function aggregateByPrice(levels: OrderbookLevel[]): OrderbookLevel[] {
       priceMap.set(level.price, { ...level });
     }
   });
-
-  return Array.from(priceMap.values());
+ return Array.from(priceMap.values());
 }

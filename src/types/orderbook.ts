@@ -4,6 +4,7 @@ export interface OrderbookLevel {
   side: "bid" | "ask";
   venue?: string;
   timestamp?: number;
+  color?: string; // <-- color property for visualization
 }
 
 export interface OrderbookData {

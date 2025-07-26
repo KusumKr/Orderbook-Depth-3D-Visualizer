@@ -4,7 +4,6 @@ import { useState } from 'react';
 import OrderbookVisualization from '../src/components/OrderbookVisualization';
 import ControlPanel from '../src/components/ControlPanel';
 import { useMultiVenueOrderbook } from '../src/hooks/useMultiVenueOrderbook';
-import { ThemeProvider } from '../src/contexts/ThemeContext';
 
 export default function Home() {
   const [symbol, setSymbol] = useState('btcusdt');
@@ -41,23 +40,21 @@ export default function Home() {
               Orderbook Depth 3D Visualizer
             </h1>
             <div className="absolute right-0 flex items-center space-x-4">
-              <div className="text-sm text-gray-300">
+              <div className="text-sm text-gray-300 flex items-center space-x-2">
                 <span className={isConnected ? "text-green-400" : "text-red-400"}>
                   ●
-                </span> 
-                {isConnected ? 'Live Data' : error ? 'Connection Error' : 'Connecting...'}
+                </span>
+                {isConnected && 'Live Data'}
+                {!isConnected && error && 'Connection Error'}
+                {!isConnected && !error && 'Demo Mode'}
               </div>
               <div className="text-sm text-gray-300">
-                Symbol: <span className="text-white font-mono">{symbol.toUpperCase()}</span>
-              </div>
-              {!isConnected && (
-                <div className="text-xs text-orange-400">
-                  Demo Mode
-                </div>
-              )}
+                Symbol: <span className="text-white font-mono">{symbol.toUpperCase()}</span> 
+              </div>   
             </div>
           </div>
         </div>
+
       </header>
 
       {/* Control Panel */}

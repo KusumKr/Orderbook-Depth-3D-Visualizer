@@ -24,17 +24,14 @@ export default function MarketDepthHeatmap({
       ...asks.map(a => a.quantity)
     );
 
-    // Create intensity grid
     const intensityGrid = new Float32Array(gridSize * gridSize);
     const priceSpread = priceRange.max - priceRange.min;
 
-    // Map orderbook data to grid
     [...bids, ...asks].forEach(level => {
       const normalizedPrice = (level.price - priceRange.min) / priceSpread;
       const gridX = Math.floor(normalizedPrice * (gridSize - 1));
       const intensity = level.quantity / maxQuantity;
       
-      // Apply intensity to surrounding grid points with falloff
       for (let dy = -2; dy <= 2; dy++) {
         for (let dx = -2; dx <= 2; dx++) {
           const x = Math.max(0, Math.min(gridSize - 1, gridX + dx));
@@ -48,10 +45,9 @@ export default function MarketDepthHeatmap({
     });
 
     return { intensityGrid, gridSize };
-  }, [bids, asks, priceRange]);
+  }, [bids, asks, priceRange])
 
-  // Create color texture from intensity data
-  const colorTexture = useMemo(() => {
+    const colorTexture = useMemo(() => {
     const canvas = document.createElement('canvas');
     canvas.width = heatmapData.gridSize;
     canvas.height = heatmapData.gridSize;
@@ -65,7 +61,6 @@ export default function MarketDepthHeatmap({
       const intensity = heatmapData.intensityGrid[i];
       const pixelIndex = i * 4;
       
-      // Create heat colors: blue -> green -> yellow -> red
       if (intensity < 0.25) {
         imageData.data[pixelIndex] = 0; // R
         imageData.data[pixelIndex + 1] = Math.floor(intensity * 4 * 255); // G

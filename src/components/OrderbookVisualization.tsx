@@ -3,7 +3,7 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Text, Grid } from '@react-three/drei';
 import { useRef, useMemo, useEffect } from 'react';
-import { useMultiVenueOrderbook, getVenueColor } from '../hooks/useMultiVenueOrderbook';
+import { useMultiVenueOrderbook } from '../hooks/useMultiVenueOrderbook';
 import { historicalDataService } from '../services/historicalDataService';
 import { performanceOptimizer } from '../utils/performanceOptimizer';
 import PressureZoneHeatmap from './PressureZoneHeatmap';
@@ -27,43 +27,37 @@ interface OrderbookBarProps {
 
 function OrderbookBar({ position, scale, color, price, quantity, venue, lod = 'high' }: OrderbookBarProps) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const complexity = performanceOptimizer.getGeometryComplexity(lod);
+  const barColor = color; // Use the color prop directly
 
   return (
     <group>
-      <mesh ref={meshRef} position={position} scale={scale}>
+      <mesh 
+        ref={meshRef} 
+        position={position} 
+        scale={scale}
+        castShadow
+        receiveShadow
+      >
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial 
-          color={venue ? getVenueColor(venue) : color} 
+          color={barColor}
           transparent 
           opacity={0.8}
           metalness={0.1}
-          roughness={0.7}
+          roughness={0.4}
         />
       </mesh>
+      
       {lod === 'high' && (
-        <>
-          <Text
-            position={[position[0], position[1] + scale[1] / 2 + 0.5, position[2]]}
-            fontSize={0.3}
-            color="white"
-            anchorX="center"
-            anchorY="middle"
-          >
-            {`$${price.toFixed(2)}`}
-          </Text>
-          {venue && (
-            <Text
-              position={[position[0], position[1] + scale[1] / 2 + 0.8, position[2]]}
-              fontSize={0.2}
-              color={getVenueColor(venue)}
-              anchorX="center"
-              anchorY="middle"
-            >
-              {venue}
-            </Text>
-          )}
-        </>
+        <Text
+          position={[position[0], position[1] + scale[1] / 2 + 0.5, position[2]]}
+          fontSize={0.3}
+          color="#ffffff"
+          anchorX="center"
+          anchorY="middle"
+        >
+          {`$${price.toFixed(2)}`}
+        </Text>
       )}
     </group>
   );
@@ -99,6 +93,19 @@ function OrderbookScene({
   const aggregatedData = useMultiVenueOrderbook(symbol, selectedVenues);
   const cameraRef = useRef<THREE.Camera>(null);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 OrderbookScene Debug Info:', {
+      symbol,
+      selectedVenues,
+      connectedVenues: aggregatedData.connectedVenues,
+      totalVenues: aggregatedData.totalVenues,
+      bidsCount: aggregatedData.bids.length,
+      asksCount: aggregatedData.asks.length,
+      venueData: Object.keys(aggregatedData.venueData)
+    });
+  }, [symbol, selectedVenues, aggregatedData]);
+
   // Start historical data recording
   useEffect(() => {
     historicalDataService.startRecording(timeRange, () => ({
@@ -112,87 +119,58 @@ function OrderbookScene({
     };
   }, [timeRange, selectedVenues, aggregatedData.bids, aggregatedData.asks]);
 
-  // Performance optimization
+  // Use real data, not fallback demo data
   const { optimizedBids, optimizedAsks, priceRange } = useMemo(() => {
-    const optimized = performanceOptimizer.optimizeOrderbookData(
-      aggregatedData.bids, 
-      aggregatedData.asks
-    );
+    const bidsToUse = aggregatedData.bids;
+    const asksToUse = aggregatedData.asks;
 
-    if (!optimized.bids.length || !optimized.asks.length) {
-      return { optimizedBids: [], optimizedAsks: [], priceRange: { min: 0, max: 0 } };
-    }
-
-    // Get price range for scaling
-    const allPrices = [...optimized.bids.map((b: any) => b.price), ...optimized.asks.map((a: any) => a.price)];
+    const allPrices = [...bidsToUse.map((b: any) => b.price), ...asksToUse.map((a: any) => a.price)];
     const minPrice = Math.min(...allPrices);
     const maxPrice = Math.max(...allPrices);
     const priceRange = { min: minPrice, max: maxPrice };
 
-    return { optimizedBids: optimized.bids, optimizedAsks: optimized.asks, priceRange };
+    return { 
+      optimizedBids: bidsToUse.slice(0, 15), 
+      optimizedAsks: asksToUse.slice(0, 15), 
+      priceRange 
+    };
   }, [aggregatedData.bids, aggregatedData.asks]);
 
-  // Create 3D bars with historical depth
+  // Create 3D bars with venue color
   const { bidBars, askBars } = useMemo(() => {
-    if (!optimizedBids.length || !optimizedAsks.length) {
-      return { bidBars: [], askBars: [] };
-    }
-
-    const priceSpread = priceRange.max - priceRange.min;
-    const maxQuantity = Math.max(
-      ...optimizedBids.map((b: any) => b.quantity),
-      ...optimizedAsks.map((a: any) => a.quantity)
-    );
-
-    const bidBars = optimizedBids.slice(0, 20).map((bid: any, index: number) => {
-      const normalizedPrice = (bid.price - priceRange.min) / priceSpread;
-      const x = (normalizedPrice - 0.5) * 20;
-      const y = (bid.quantity / maxQuantity) * 10;
-      const z = 0;
+    const bidBars = optimizedBids.map((bid: any, index: number) => {
+      const x = (index - optimizedBids.length / 2) * 1.2;
+      const y = Math.max(bid.quantity * 2, 0.5);
+      const z = -2;
 
       return {
         position: [x, y / 2, z] as [number, number, number],
         scale: [0.8, y, 0.8] as [number, number, number],
-        color: '#10b981',
+        color: bid.color, // venue color from data
         price: bid.price,
         quantity: bid.quantity,
-        venue: bid.venue,
+        venue: bid.venue || 'Demo',
         lod: 'high' as const
       };
     });
-
-    const askBars = optimizedAsks.slice(0, 20).map((ask: any, index: number) => {
-      const normalizedPrice = (ask.price - priceRange.min) / priceSpread;
-      const x = (normalizedPrice - 0.5) * 20;
-      const y = (ask.quantity / maxQuantity) * 10;
-      const z = 0;
+    const askBars = optimizedAsks.map((ask: any, index: number) => {
+      const x = (index - optimizedAsks.length / 2) * 1.2;
+      const y = Math.max(ask.quantity * 2, 0.5);
+      const z = 2;
 
       return {
         position: [x, y / 2, z] as [number, number, number],
         scale: [0.8, y, 0.8] as [number, number, number],
-        color: '#ef4444',
+        color: ask.color, // venue color from data
         price: ask.price,
         quantity: ask.quantity,
-        venue: ask.venue,
+        venue: ask.venue || 'Demo',
         lod: 'high' as const
       };
     });
 
     return { bidBars, askBars };
-  }, [optimizedBids, optimizedAsks, priceRange]);
-
-  if (aggregatedData.connectedVenues === 0 && optimizedBids.length === 0) {
-    return (
-      <group>
-        <Text position={[0, 2, 0]} fontSize={1} color="red" anchorX="center">
-          No Venue Data
-        </Text>
-        <Text position={[0, 0, 0]} fontSize={0.5} color="orange" anchorX="center">
-          Check venue connections
-        </Text>
-      </group>
-    );
-  }
+  }, [optimizedBids, optimizedAsks]);
 
   return (
     <>
@@ -360,9 +338,55 @@ export default function OrderbookVisualization({
   return (
     <div className={`w-full h-full bg-gray-900 ${className}`}>
       <Canvas
-        camera={{ position: [15, 15, 15], fov: 60 }}
-        style={{ background: '#111827' }}
+        camera={{ 
+          position: [15, 15, 15], 
+          fov: 60,
+          near: 0.1,
+          far: 1000
+        }}
+        style={{ 
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          width: '100%',
+          height: '100%'
+        }}
+        shadows
+        gl={{
+          antialias: true,
+          alpha: false,
+          powerPreference: 'high-performance',
+          stencil: false,
+          depth: true,
+          logarithmicDepthBuffer: false,
+          preserveDrawingBuffer: false,
+          failIfMajorPerformanceCaveat: false,
+          precision: 'highp',
+          premultipliedAlpha: true
+        }}
+        dpr={[1, 2]}
+        performance={{ min: 0.5 }}
+        onCreated={(state) => {
+          console.log('✅ Canvas created successfully', state);
+        }}
       >
+        {/* Basic Lighting Setup */}
+        <ambientLight intensity={0.4} color="#ffffff" />
+        <directionalLight 
+          position={[10, 10, 5]} 
+          intensity={1.0} 
+          color="#ffffff"
+          castShadow
+        />
+        <pointLight 
+          position={[0, 15, 0]} 
+          intensity={0.6} 
+          color="#10b981"
+          distance={30}
+          decay={2}
+        />
+        
+        {/* Fog for depth perception */}
+        <fog attach="fog" args={['#0f172a', 20, 80]} />
+        
         <OrbitControls
           enablePan={true}
           enableZoom={true}
@@ -371,7 +395,12 @@ export default function OrderbookVisualization({
           autoRotateSpeed={0.5}
           maxDistance={50}
           minDistance={5}
+          maxPolarAngle={Math.PI * 0.8}
+          minPolarAngle={Math.PI * 0.1}
+          enableDamping={true}
+          dampingFactor={0.05}
         />
+        
         <OrderbookScene 
           symbol={symbol}
           selectedVenues={selectedVenues}
@@ -394,7 +423,7 @@ export default function OrderbookVisualization({
         showPressureZones={showPressureZones}
         onPressureZonesToggle={() => {}}
         showVolumeProfile={showVolumeProfile}
-        onVolumeProfileToggle={() => {}}
+       onVolumeProfileToggle={() => {}}
       />
     </div>
   );

@@ -50,19 +50,25 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Load theme from localStorage
     const savedTheme = localStorage.getItem('orderbook-theme') as Theme;
-    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+    if (savedTheme === 'light' || savedTheme === 'dark') {
       setTheme(savedTheme);
     }
   }, []);
 
   useEffect(() => {
-    // Apply theme to document
+    // Apply theme to root
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('orderbook-theme', theme);
+
+    // Set CSS variables
+    const themeColors = themes[theme];
+    Object.entries(themeColors).forEach(([key, value]) => {
+      document.documentElement.style.setProperty(`--${key}`, value);
+    });
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   };
 
   const colors = themes[theme];

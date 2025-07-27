@@ -336,7 +336,7 @@ export default function OrderbookVisualization({
   autoRotate = true
 }: OrderbookVisualizationProps) {
   return (
-    <div className={`w-full h-full bg-gray-900 ${className}`}>
+    <div className={`w-full h-full ${className}`}style={{ background: 'var(--background)' }}>
       <Canvas
         camera={{ 
           position: [15, 15, 15], 
@@ -344,11 +344,7 @@ export default function OrderbookVisualization({
           near: 0.1,
           far: 1000
         }}
-        style={{ 
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-          width: '100%',
-          height: '100%'
-        }}
+        style={{ background: 'linear-gradient(135deg, var(--background) 0%, var(--surface) 100%)' }}
         shadows
         gl={{
           antialias: true,
@@ -385,7 +381,7 @@ export default function OrderbookVisualization({
         />
         
         {/* Fog for depth perception */}
-        <fog attach="fog" args={['#0f172a', 20, 80]} />
+        <fog attach="fog" args={['var(--background)', 20, 80]} />
         
         <OrbitControls
           enablePan={true}

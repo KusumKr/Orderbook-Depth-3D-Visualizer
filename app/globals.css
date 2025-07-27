@@ -1,42 +1,45 @@
 @import "tailwindcss";
 
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --surface: #f4f4f4;
+  --text: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --surface: #1e1e1e;
+    --text: #ededed;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+html, body {
+  background-color: var(--background);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
 }
 
-/* Optional: Add your layout classes */
 .app-layout {
   display: flex;
   height: 100vh;
   width: 100vw;
-  background: #0f172a;
+  background-color: var(--background);
+  color: var(--text);
 }
 
 .control-panel {
-  background: #1e293b;
-  color: #fff;
+  background-color: var(--surface);
+  color: var(--text);
   min-width: 340px;
   height: 100vh;
   padding: 32px 24px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
   border-radius: 0 16px 16px 0;
   display: flex;
   flex-direction: column;
@@ -46,5 +49,6 @@ body {
 .visualizer-area {
   flex: 1;
   height: 100vh;
+  background-color: var(--background);
   position: relative;
 }

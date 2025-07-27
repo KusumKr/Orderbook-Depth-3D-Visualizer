@@ -31,7 +31,8 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 relative">
+    <div className="min-h-screen transition-colors duration-300" style={{ background: 'var(--background)', color: 'var(--text)' }}>
+
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-20 bg-gray-800/90 backdrop-blur-sm border-b border-gray-700">
         <div className="container mx-auto px-4 py-3">

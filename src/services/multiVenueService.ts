@@ -208,12 +208,11 @@ export class MultiVenueConnection {
     }
     
     this.callbacks.set(venueId, callback);
-    
-    // For development, skip real connections and use demo mode
-    if (process.env.NODE_ENV === 'development' || typeof window !== 'undefined') {
-      console.log(`🎭 Using demo mode for ${config.name} (development environment)`);
-      return;
+    if (process.env.NODE_ENV === 'development') {
+     console.log(`🎭 Using demo mode for ${config.name} (development environment)`);
+    return;
     }
+
     
     this.createConnection(venueId, config);
   }

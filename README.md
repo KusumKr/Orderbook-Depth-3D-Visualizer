@@ -163,7 +163,7 @@ orderbook-visualizer/
 4. **Currency Pairs**: Focus on major USDT pairs for demonstration
 
 ## Project Demo
-<img width="1346" height="592" alt="image" src="https://github.com/user-attachments/assets/72d664fb-0753-4e75-890f-1d031d040932" />
+<img width="1340" height="597" alt="image" src="https://github.com/user-attachments/assets/bd4dad83-a26b-4dd3-819d-36931edeba53" />
 
 
 ## 🎮 Usage Guide

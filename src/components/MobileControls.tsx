@@ -243,12 +243,12 @@ export default function MobileControls({
       )}
 
       {/* Performance indicator for mobile */}
-      <div className="fixed top-4 right-4 z-40 bg-gray-800/90 backdrop-blur-sm rounded-lg px-3 py-1 border border-gray-700">
+      {/* <div className="fixed top-4 right-4 z-40 bg-gray-800/90 backdrop-blur-sm rounded-lg px-3 py-1 border border-gray-700">
         <div className="flex items-center space-x-2 text-xs text-gray-300">
           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
           <span>Mobile Mode</span>
         </div>
-      </div>
+      </div> */}
     </>
   );
 }

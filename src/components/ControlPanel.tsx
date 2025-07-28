@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTheme } from '../contexts/ThemeContext';
+// import { useTheme } from '../contexts/ThemeContext';
 
 interface ControlPanelProps {
   symbol: string;
@@ -53,7 +53,7 @@ export default function ControlPanel({
   onTimeRangeChange,
 }: ControlPanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
-  const { theme, toggleTheme } = useTheme();
+  // const { theme, toggleTheme } = useTheme();
 
   const popularSymbols = [
     'btcusdt',
@@ -275,7 +275,7 @@ export default function ControlPanel({
               </label>
 
               {/* Theme Toggle */}
-              <label className="flex items-center justify-between">
+              {/* <label className="flex items-center justify-between">
                 <span className="text-sm text-gray-300">Theme: {theme === 'dark' ? 'Dark' : 'Light'}</span>
                 <button
                   onClick={toggleTheme}
@@ -289,7 +289,7 @@ export default function ControlPanel({
                     }`}
                   />
                 </button>
-              </label>
+              </label> */}
             </div>
           </div>
 

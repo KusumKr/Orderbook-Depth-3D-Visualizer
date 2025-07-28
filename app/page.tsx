@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import OrderbookVisualization from '../src/components/OrderbookVisualization';
 import ControlPanel from '../src/components/ControlPanel';
 import { useMultiVenueOrderbook } from '../src/hooks/useMultiVenueOrderbook';
 
 export default function Home() {
+  const [isMobile,setIsMobile] = useState(false);
   const [symbol, setSymbol] = useState('btcusdt');
   const [selectedVenues, setSelectedVenues] = useState(['binance', 'okx']);
   const [autoRotate, setAutoRotate] = useState(true);
@@ -22,6 +23,14 @@ export default function Home() {
   const isConnected = aggregatedData.connectedVenues > 0;
   const error = aggregatedData.connectedVenues === 0 ? 'No venues connected' : null;
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const handleVenueToggle = (venue: string) => {
     setSelectedVenues(prev => 
       prev.includes(venue) 
@@ -40,10 +49,10 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-white text-center">
               Orderbook Depth 3D Visualizer
             </h1>
-            <div className="absolute right-0 flex items-center space-x-4">
+            <div className="absolute right-0 items-center space-x-4" style={isMobile?{display: 'none'}:{display: 'flex'}}>
               <div className="text-sm text-gray-300 flex items-center space-x-2">
                 <span className={isConnected ? "text-green-400" : "text-red-400"}>
-                  ●
+                  ●&nbsp;
                 </span>
                 {isConnected && 'Live Data'}
                 {!isConnected && error && 'Connection Error'}

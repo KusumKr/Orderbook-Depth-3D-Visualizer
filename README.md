@@ -12,7 +12,6 @@ A real-time 3D visualization of cryptocurrency orderbook data with advanced trad
 - **Volume Profile**: Real-time volume analysis and distribution
 - **Order Flow**: Advanced order flow visualization
 - **Responsive Design**: Optimized for desktop and mobile devices
-- **Theme Support**: Dark/Light theme toggle
 - **Performance Optimized**: 60fps rendering with efficient data handling
 
 ## 🛠️ Tech Stack
@@ -173,7 +172,6 @@ orderbook-visualizer/
 - **Trading Pair Selection**: Choose from popular cryptocurrency pairs
 - **Venue Filtering**: Toggle individual exchanges on/off
 - **Visualization Controls**: Auto-rotate, pressure zones, volume profile
-- **Theme Toggle**: Switch between dark and light themes
 - **Advanced Features**: Order flow, imbalance analysis, depth heatmap
 
 ### 3D Navigation
